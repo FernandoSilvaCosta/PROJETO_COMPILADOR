@@ -65,4 +65,26 @@ class Scanner:
             else:
                 break
 
+#LEITURA DE NUMEROS INTEIROS
+def read_number(self) -> Token:
+    start = self.current
+    # consome todos os dígitos consecutivos
+    while self.peek().isdigit():
+        self.advance()
+    
+    lexeme = self.code[start:self.current]
+    return Token(TokenType.NUMBER, lexeme, self.line)
 
+#LEITURA DO CODIGO E TRANSFORMA EM UMA LISTA DE TOKENS
+def tokenize(self) -> list:
+    while self.current < len(self.code):
+        self.skip_whitespace()
+        ch = self.peek()
+
+        if ch.isdigit():
+            self.tokens.append(self.read_number())
+        else:
+            self.advance()
+
+    self.tokens.append(Token(TokenType.EOF, "", self.line))
+    return self.tokens
