@@ -1,6 +1,8 @@
 from jacktoken import Token, TokenType
 
-#CLASSE DE LEITURA DO CODIGO JACK
+# CLASSE DE LEITURA DO CODIGO JACK
+
+
 class Scanner:
     def __init__(self, code: str):
         self.code = code       # codigo fonte completo
@@ -8,7 +10,7 @@ class Scanner:
         self.line = 1          # linha atual (para mensagens de erro)
         self.tokens = []       # lista de tokens reconhecidos
 
-      #DEFIÇÃO DOS SIMBOLOS
+      # DEFIÇÃO DOS SIMBOLOS
         self.SYMBOLS = {
             '(': TokenType.LPAREN,    ')': TokenType.RPAREN,
             '{': TokenType.LBRACE,    '}': TokenType.RBRACE,
@@ -21,7 +23,7 @@ class Scanner:
             '>': TokenType.GT,        '=': TokenType.EQ,
             '~': TokenType.NOT,
         }
-      #DEFINIÇAO DAS KEYWORDS DA LINGUAGEM JACK
+      # DEFINIÇAO DAS KEYWORDS DA LINGUAGEM JACK
         self.KEYWORDS = {
             'class': TokenType.CLASS,           'constructor': TokenType.CONSTRUCTOR,
             'function': TokenType.FUNCTION,     'method': TokenType.METHOD,
@@ -37,15 +39,19 @@ class Scanner:
         }
 
 
-#OLHAR O CARACTERE ATUAL E OS PROXIMOS
+# OLHAR O CARACTERE ATUAL E OS PROXIMOS
+
+
     def peek(self, offset=0) -> str:
         pos = self.current + offset
         if pos < len(self.code):
             return self.code[pos]
         return '\0'  # fim do código
-    
 
-#AVANÇA O CARACTERE
+
+# AVANÇA O CARACTERE
+
+
     def advance(self) -> None:
         if self.current < len(self.code):
             if self.code[self.current] == '\n':
@@ -53,7 +59,9 @@ class Scanner:
             self.current += 1
 
 
-#IGNORAR ESPAÇOS, TABS E QUEBRA DE LINHA
+# IGNORAR ESPAÇOS, TABS E QUEBRA DE LINHA
+
+
     def skip_whitespace(self) -> None:
         while True:
             c = self.peek()
@@ -65,26 +73,27 @@ class Scanner:
             else:
                 break
 
-#LEITURA DE NUMEROS INTEIROS
-def read_number(self) -> Token:
-    start = self.current
-    # consome todos os dígitos consecutivos
-    while self.peek().isdigit():
-        self.advance()
-    
-    lexeme = self.code[start:self.current]
-    return Token(TokenType.NUMBER, lexeme, self.line)
-
-#LEITURA DO CODIGO E TRANSFORMA EM UMA LISTA DE TOKENS
-def tokenize(self) -> list:
-    while self.current < len(self.code):
-        self.skip_whitespace()
-        ch = self.peek()
-
-        if ch.isdigit():
-            self.tokens.append(self.read_number())
-        else:
+# LEITURA DE NUMEROS INTEIROS
+    def read_number(self) -> Token:
+        start = self.current
+        # consome todos os dígitos consecutivos
+        while self.peek().isdigit():
             self.advance()
 
-    self.tokens.append(Token(TokenType.EOF, "", self.line))
-    return self.tokens
+        lexeme = self.code[start:self.current]
+        return Token(TokenType.NUMBER, lexeme, self.line)
+
+# LEITURA DO CODIGO E TRANSFORMA EM UMA LISTA DE TOKENS
+    def tokenize(self) -> list:
+        while self.current < len(self.code):
+            self.skip_whitespace()
+            ch = self.peek()
+
+            if ch.isdigit():
+                  self.tokens.append(self.read_number())
+            else:
+                  self.advance()
+
+        self.tokens.append(Token(TokenType.EOF, "", self.line))
+        return self.tokens
+
