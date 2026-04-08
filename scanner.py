@@ -82,18 +82,45 @@ class Scanner:
 
         lexeme = self.code[start:self.current]
         return Token(TokenType.NUMBER, lexeme, self.line)
+    
+# LEITURA DE STRINGS
+    def read_string(self) -> Token:
+        """Lê uma constante de string delimitada por aspas duplas."""
+        self.advance()  # consome aspa de abertura
+        start = self.current
+        
+        while self.peek() != '"' and not self.is_at_end():
+            if self.peek() == '\n':
+                raise SyntaxError(f"Erro na linha {self.line}: String constante não pode conter quebra de linha.")
+            self.advance()
+        
+        if self.is_at_end():
+            raise SyntaxError(f"Erro na linha {self.line}: String não fechada (esperado '\"').")
+        
+        lexeme = self.code[start:self.current]
+        self.advance()  # consome aspa de fechamento
+        return Token(TokenType.STRING, lexeme, self.line)
+
+    def is_at_end(self) -> bool:
+        return self.current >= len(self.code)
 
 # LEITURA DO CODIGO E TRANSFORMA EM UMA LISTA DE TOKENS
     def tokenize(self) -> list:
         while self.current < len(self.code):
             self.skip_whitespace()
+            
+            if self.is_at_end():
+                break
+
             ch = self.peek()
-
+            
             if ch.isdigit():
-                  self.tokens.append(self.read_number())
+                self.tokens.append(self.read_number())
+            elif ch == '"':
+                self.tokens.append(self.read_string())
             else:
-                  self.advance()
-
+                self.advance()
+        
         self.tokens.append(Token(TokenType.EOF, "", self.line))
         return self.tokens
 
