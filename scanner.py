@@ -73,6 +73,29 @@ class Scanner:
             else:
                 break
 
+def skip_line_comment(self):
+    """Pula tudo até o final da linha."""
+    # Já sabemos que começou com //, então avançamos até o \n ou fim
+    while self.peek() != '\n' and not self.is_at_end():
+        self.advance()
+
+def skip_block_comment(self):
+    """Pula comentários de bloco /* ... */ ou /** ... */."""
+    self.advance()  # consome o '*' (o '/' já foi consumido no skip_whitespace)
+
+    while not self.is_at_end():
+        c = self.peek()
+
+        if c == '*' and self.peek(1) == '/':
+            self.advance()  # '*'
+            self.advance()  # '/'
+            return  # Comentário fechado com sucesso
+
+        self.advance()  # O advance já cuida do self.line += 1 se for '\n'
+
+    # Se saiu do loop sem o return, o arquivo acabou antes do */
+    raise SyntaxError(f"Erro na linha {self.line}: Comentário de bloco '/*' não fechado.")
+
 # LEITURA DE NUMEROS INTEIROS
     def read_number(self) -> Token:
         start = self.current
@@ -126,23 +149,40 @@ class Scanner:
     def tokenize(self) -> list:
         while not self.is_at_end():
             self.skip_whitespace()
-            
-            if self.is_at_end():
-                break
+            if self.is_at_end(): break
 
             ch = self.peek()
 
-            if ch.isalpha() or ch == '_':
+            if ch == '/':
+                if self.peek(1) == '/':
+                    self.advance()
+                    self.advance()
+                    self.skip_line_comment()
+                    continue  # Volta ao início do loop, não gera token
+                elif self.peek(1) == '*':
+                    self.advance() 
+                    self.skip_block_comment()
+                    continue  # Volta ao início do loop, não gera token
+                else:
+                    # É o símbolo de divisão '/'
+                    self.advance()
+                    self.tokens.append(Token(self.SYMBOLS['/'], '/', self.line))
+            
+            # Identificadores e Keywords
+            elif ch.isalpha() or ch == '_':
                 self.tokens.append(self.read_identifier())
             
+            # Números
             elif ch.isdigit():
                 self.tokens.append(self.read_number())
                 
+            # Strings
             elif ch == '"':
                 self.tokens.append(self.read_string())
                 
+            # Símbolos
             elif ch in self.SYMBOLS:
-                self.advance()  # Avança para consumir o símbolo
+                self.advance()
                 self.tokens.append(Token(self.SYMBOLS[ch], ch, self.line))
                 
             else:
