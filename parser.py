@@ -211,3 +211,32 @@ class Parser:
        self.match_symbol('}')           # }
        self.close_tag("whileStatement")
 
+    def parse_expression_list(self):
+       """lê zero ou mais expressões separadas por vírgula"""
+       self.open_tag("expressionList")
+       if self.peek() and self.peek().lexeme != ')':
+           self.parse_expression()
+           while self.peek() and self.peek().lexeme == ',':
+               self.match_symbol(',')
+               self.parse_expression()
+       self.close_tag("expressionList")
+
+    def parse_subroutine_call(self):
+       """lê uma chamada de função: foo() ou obj.foo()"""
+       self.match(TokenType.IDENT)      # nome da função ou objeto
+       if self.peek() and self.peek().lexeme == '.':
+           self.match_symbol('.')       # .
+           self.match(TokenType.IDENT)  # nome do método
+       self.match_symbol('(')           # (
+       self.parse_expression_list()     # expressionList
+       self.match_symbol(')')           # )
+
+    def parse_do(self):
+       """lê um do subroutineCall ;"""
+       self.open_tag("doStatement")
+       self.match(TokenType.DO)         # do
+       self.parse_subroutine_call()     # subroutineCall
+       self.match_symbol(';')           # ;
+       self.close_tag("doStatement")
+
+

@@ -78,3 +78,19 @@ def test_parse_while():
     assert "<keyword> while </keyword>" in xml
     print("✅ Teste de whileStatement passou!")
 
+def test_parse_do():
+    """Testa o reconhecimento de um doStatement simples."""
+    code = "do draw();"
+    tokens = [t for t in Scanner(code).tokenize() if t.type != TokenType.EOF]
+
+    parser = Parser(tokens)
+    parser.parse_do()
+    xml = parser.get_xml()
+
+    assert "<doStatement>" in xml
+    assert "<keyword> do </keyword>" in xml
+    assert "<symbol> ; </symbol>" in xml
+    print("✅ Teste de doStatement passou!")
+
+
+    
