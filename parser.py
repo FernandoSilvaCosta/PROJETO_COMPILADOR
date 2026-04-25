@@ -25,16 +25,20 @@ class Parser:
         return token
 
     def match(self, expected_type: TokenType) -> Token:
-        """Verifica se o token atual é do tipo esperado e avança."""
-        token = self.peek()
-        if token and token.type == expected_type:
-            self.write_token(token)
-            self.advance()
-            return token
-        raise SyntaxError(
-            f"Erro de sintaxe na linha {token.line}: "
-            f"Esperado {expected_type}, encontrado '{token.lexeme}'"
-        )
+       """Verifica se o token atual é do tipo esperado e avança."""
+       token = self.peek()
+       if token is None:
+           raise SyntaxError(
+               f"Erro de sintaxe: Esperado {expected_type}, encontrado fim do arquivo"
+           )
+       if token.type == expected_type:
+           self.write_token(token)
+           self.advance()
+           return token
+       raise SyntaxError(
+           f"Erro de sintaxe na linha {token.line}: "
+           f"Esperado {expected_type}, encontrado '{token.lexeme}'"
+       )
 
     def match_keyword(self, *types: TokenType) -> Token:
         """Verifica se o token atual é uma das keywords esperadas e avança."""
@@ -63,17 +67,22 @@ class Parser:
             f"Erro de sintaxe na linha {token.line}: "
             f"Tipo esperado, encontrado '{token.lexeme}'"
         )
+    
     def match_symbol(self, symbol: str) -> Token:
-       """Verifica se o token atual é o símbolo esperado e avança."""
-       token = self.peek()
-       if token and token.lexeme == symbol:
-           self.write_token(token)
-           self.advance()
-           return token
-       raise SyntaxError(
-           f"Erro de sintaxe na linha {token.line if token else '?'}: "
-           f"Esperado '{symbol}', encontrado '{token.lexeme if token else 'EOF'}'"
-       )
+        """Verifica se o token atual é o símbolo esperado e avança."""
+        token = self.peek()
+        if token is None:
+            raise SyntaxError(
+                f"Erro de sintaxe: Esperado '{symbol}', encontrado fim do arquivo"
+            )
+        if token.lexeme == symbol:
+            self.write_token(token)
+            self.advance()
+            return token
+        raise SyntaxError(
+            f"Erro de sintaxe na linha {token.line}: "
+            f"Esperado '{symbol}', encontrado '{token.lexeme}'"
+        )
 
     # --- Helpers de XML ---
 
