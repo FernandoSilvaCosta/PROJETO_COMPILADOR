@@ -11,6 +11,7 @@ class Parser:
         self.indent_level = 0  # nível de indentação XML
 
 
+
     def peek(self) -> Token:
         """Retorna o token atual sem avançar."""
         if self.current < len(self.tokens):
@@ -87,3 +88,29 @@ class Parser:
     def get_xml(self) -> str:
         """Retorna o XML completo como string."""
         return "\n".join(self.xml_output)
+
+
+    def parse_term(self):
+        
+        """term → integerConstant | stringConstant | keywordConstant | varName"""
+        
+        self.open_tag("term")
+        token = self.peek()
+
+        if token.type == TokenType.NUMBER:
+              self.match(TokenType.NUMBER)
+        elif token.type == TokenType.STRING:
+              self.match(TokenType.STRING)
+        elif token.type in (TokenType.TRUE, TokenType.FALSE,
+                              TokenType.NULL, TokenType.THIS):
+              self.match_keyword(TokenType.TRUE, TokenType.FALSE,
+                              TokenType.NULL, TokenType.THIS)
+        elif token.type == TokenType.IDENT:
+              self.match(TokenType.IDENT)
+        else:
+            raise SyntaxError(
+                  f"Termo esperado na linha {token.line}, "
+                  f"encontrado: '{token.lexeme}'"
+            )
+
+        self.close_tag("term")
