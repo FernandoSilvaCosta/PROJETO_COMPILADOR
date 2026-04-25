@@ -63,6 +63,17 @@ class Parser:
             f"Erro de sintaxe na linha {token.line}: "
             f"Tipo esperado, encontrado '{token.lexeme}'"
         )
+    def match_symbol(self, symbol: str) -> Token:
+       """Verifica se o token atual é o símbolo esperado e avança."""
+       token = self.peek()
+       if token and token.lexeme == symbol:
+           self.write_token(token)
+           self.advance()
+           return token
+       raise SyntaxError(
+           f"Erro de sintaxe na linha {token.line if token else '?'}: "
+           f"Esperado '{symbol}', encontrado '{token.lexeme if token else 'EOF'}'"
+       )
 
     # --- Helpers de XML ---
 
@@ -124,19 +135,20 @@ class Parser:
        self.close_tag("expression")
 
     def parse_let(self):
-        """letStatement → 'let' varName ('[' expression ']')? '=' expression ';'"""
-        self.open_tag("letStatement")
-        self.match(TokenType.LET)        # let
-        self.match(TokenType.IDENT)      # varName
-    
-        # opcional: '[' expression ']'
-        if self.peek() and self.peek().type == TokenType.LBRACKET:
-            self.match(TokenType.LBRACKET)
-            self.parse_expression()
-            self.match(TokenType.RBRACKET)
-    
-        self.match(TokenType.EQ)         # =
-        self.parse_expression()          # expression
-        self.match(TokenType.SEMICOLON)  # ;
-        self.close_tag("letStatement")
+       """letStatement → 'let' varName ('[' expression ']')? '=' expression ';'"""
+       self.open_tag("letStatement")
+       self.match(TokenType.LET)        # let
+
+       self.match(TokenType.IDENT)      # varName
+
+       # opcional: '[' expression ']'
+       if self.peek() and self.peek().lexeme == '[':
+           self.match_symbol('[')
+           self.parse_expression()
+           self.match_symbol(']')
+
+       self.match_symbol('=')           # =
+       self.parse_expression()          # expression
+       self.match_symbol(';')           # ;
+       self.close_tag("letStatement")
 
