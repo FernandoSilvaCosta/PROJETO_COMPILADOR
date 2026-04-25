@@ -30,3 +30,21 @@ def test_parse_expression():
     assert "<integerConstant> 20 </integerConstant>" in xml
     print("✅ Teste de expression passou!")
 
+def test_parse_let():
+    """Testa o reconhecimento de um letStatement simples."""
+    code = "let x = 10;"
+    tokens = [t for t in Scanner(code).tokenize() if t.type != TokenType.EOF]
+
+    parser = Parser(tokens)
+    parser.parse_let()
+    xml = parser.get_xml()
+
+    assert "<letStatement>" in xml
+    assert "<keyword> let </keyword>" in xml
+    assert "<identifier> x </identifier>" in xml
+    assert "<symbol> = </symbol>" in xml
+    assert "<integerConstant> 10 </integerConstant>" in xml
+    assert "<symbol> ; </symbol>" in xml
+    print("✅ Teste de letStatement passou!")
+
+    

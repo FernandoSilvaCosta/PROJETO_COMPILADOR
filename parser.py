@@ -123,3 +123,20 @@ class Parser:
 
        self.close_tag("expression")
 
+    def parse_let(self):
+        """letStatement → 'let' varName ('[' expression ']')? '=' expression ';'"""
+        self.open_tag("letStatement")
+        self.match(TokenType.LET)        # let
+        self.match(TokenType.IDENT)      # varName
+    
+        # opcional: '[' expression ']'
+        if self.peek() and self.peek().type == TokenType.LBRACKET:
+            self.match(TokenType.LBRACKET)
+            self.parse_expression()
+            self.match(TokenType.RBRACKET)
+    
+        self.match(TokenType.EQ)         # =
+        self.parse_expression()          # expression
+        self.match(TokenType.SEMICOLON)  # ;
+        self.close_tag("letStatement")
+
